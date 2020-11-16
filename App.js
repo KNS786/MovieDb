@@ -1,35 +1,29 @@
-import React from 'react';
-import {NavBar} from './components/Navbar/Navbar.component';
+const app=require('express')();
+const morgan=require('morgan');
+const body_parser=require('body-parser');
+const cors=require('cors')
+const mongoose=require('mongoose');
+const Oauth=require('./middleware/Oauth');
 
-class App extends React.Component{
-   constructor(){
-     super();
-      this.state={
-        movies:['spirder man ','bar man','Iron man']
-       }
-  }
-   componentDidMount(){
-    fetch("https://api.themoviedb.org/3/movie/550?api_key=881bbb911bc6b55a452637b887993bb1")
-    .then(response=>response.json())
-    .then(movie=>this.setState({movies:movie}),(el)=>console.log(el))
+mongoose.connect(
+  'mongodb://localhost:7000/videocatcher',
+  ({ useCreateIndex:true,
+      useNewUrlParser:true,
+       useUnifiedTopology:true
+  })
+)
 
-  }
-  render(){
-     return(
-     <div className='App'>
-        {
-          this.state.movies.map(movie=>(
-            <h1>{movie.name}</h1>
+mongoose.Promise=global.Promise;
 
-         ))
-        }
-        <NavBar/>
-     </div>
-
-      )
-
-  }
+app.use(morgan('dev'));
+app.use(cors());
+app.use(bodyParser.json());
+app.use('/api/videos',express.static('media/uploads'));
+/*Routing*/
+app.use('/api/signIn',require('./routes/signIn'));
+app.use('/api/signUp',require('routes/signUp'));
+app.use('/api/upload',Oauth,require('./routes/upload'));
+app.use('/api/videoList',Oauth,require('./routes/videoList'))
 
 
-}
-export default App;
+module.exports=app;
